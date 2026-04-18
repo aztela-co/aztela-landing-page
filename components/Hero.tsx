@@ -9,8 +9,6 @@ const stats = [
 ];
 
 export default function Hero() {
-  const words = ["Your", "Operations", "Move", "Fast."];
-
   return (
     <section className="relative min-h-svh px-6 overflow-hidden pt-24 pb-16 md:pt-28 md:pb-24">
       {/* Background video */}
@@ -38,44 +36,41 @@ export default function Hero() {
           className="text-[var(--coral)] text-xs font-medium tracking-[0.2em] uppercase mb-7 hero-word"
           style={{ animationDelay: "0.1s", fontFamily: "var(--font-inter)" }}
         >
-          Data Analytics · Physical AI · Supply Chain
+          Operational Intelligence · Distributors · Wholesalers · Manufacturers
         </p>
 
         <h1
-          className="text-4xl md:text-7xl leading-[1.08] font-semibold text-[var(--off-white)] mb-4 max-w-4xl"
+          className="text-4xl md:text-6xl leading-[1.08] font-semibold text-[var(--off-white)] mb-6 max-w-4xl"
           style={{ letterSpacing: "-0.025em", fontFamily: "var(--font-playfair)" }}
         >
-          <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1 md:gap-x-3">
-            {words.map((word, i) => (
-              <span
-                key={word}
-                className="hero-word"
-                style={{ animationDelay: `${0.2 + i * 0.08}s` }}
-              >
-                {word}
-              </span>
-            ))}
+          <span
+            className="hero-word block"
+            style={{ animationDelay: "0.2s" }}
+          >
+            The shortage was visible
           </span>
-          <span className="block mt-2 md:mt-3">
-            <span
-              className="hero-word text-[var(--coral)] inline-block"
-              style={{ animationDelay: "0.6s" }}
-            >
-              Your Data Should Too.
-            </span>
+          <span
+            className="hero-word block"
+            style={{ animationDelay: "0.3s" }}
+          >
+            in your system 3 weeks ago.
+          </span>
+          <span
+            className="hero-word block text-[var(--coral)] mt-2"
+            style={{ animationDelay: "0.45s" }}
+          >
+            You found out when the line stopped.
           </span>
         </h1>
 
         <p
           className="hero-word text-[var(--muted)] text-lg md:text-xl font-light max-w-2xl leading-relaxed mb-12"
           style={{
-            animationDelay: "0.75s",
+            animationDelay: "0.65s",
             fontFamily: "var(--font-inter)",
           }}
         >
-          Aztela resolves the urgent data pain points holding back distributors,
-          wholesalers, and manufacturers — supply chain blind spots, inventory
-          chaos, and planning built on gut feel.
+          Aztela builds a live operational picture of your supply chain — connecting supplier delays, inventory, and work orders — so problems surface before they cost you money.
         </p>
 
         <div

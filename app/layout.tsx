@@ -15,9 +15,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Aztela — Data Analytics for Supply Chain & Operations",
+  title: "Aztela — Operational Intelligence for Distributors, Wholesalers & Manufacturers",
   description:
-    "Aztela solves urgent data pain points for distributors, wholesalers, and manufacturers. Turn operational chaos into clarity — fast.",
+    "Aztela builds a live operational picture of your supply chain — connecting supplier delays, inventory, and work orders — so problems surface before they cost you money.",
 };
 
 export default function RootLayout({
