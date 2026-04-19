@@ -17,9 +17,13 @@ const industriesNav = [
   { label: "Manufacturers",  href: "/industries/manufacturers" },
 ];
 
+const toolsNav = [
+  { label: "ROI Calculator",      sub: "Quantify exposure",       href: "/tools/roi" },
+  { label: "Cascade Simulator",   sub: "Trace impact before it hits", href: "/tools/cascade" },
+];
+
 const resourcesNav = [
   { label: "Case Studies",   href: "/case-studies" },
-  { label: "ROI Calculator", href: "/tools" },
   { label: "Newsletter",     href: "/newsletter" },
 ];
 
@@ -130,6 +134,7 @@ export default function Navbar() {
           </a>
           <Dropdown label="Solutions" items={solutionsNav} footer={{ label: "All Solutions", href: "/solutions" }} />
           <Dropdown label="Industries" items={industriesNav} />
+          <Dropdown label="Tools" items={toolsNav} footer={{ label: "All Tools", href: "/tools" }} />
           <a
             href="/#who"
             className="text-sm text-[var(--muted)] hover:text-[var(--off-white)] transition-colors"
@@ -205,6 +210,15 @@ export default function Navbar() {
           <a href="/#who" onClick={() => setOpen(false)} className="py-2.5 text-[var(--muted)] hover:text-[var(--off-white)] transition-colors">
             Who We Serve
           </a>
+
+          <p className="text-[9px] text-[var(--muted)] uppercase tracking-widest pt-3 pb-1 opacity-50">Tools</p>
+          {toolsNav.map(t => (
+            <Link key={t.href} href={t.href} onClick={() => setOpen(false)}
+              className="py-2 pl-3 text-[var(--muted)] hover:text-[var(--off-white)] transition-colors flex items-center justify-between">
+              <span>{t.label}</span>
+              <span className="text-[10px] opacity-50">{t.sub}</span>
+            </Link>
+          ))}
 
           <p className="text-[9px] text-[var(--muted)] uppercase tracking-widest pt-3 pb-1 opacity-50">Resources</p>
           {resourcesNav.map(r => (
