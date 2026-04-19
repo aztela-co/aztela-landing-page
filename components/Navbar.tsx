@@ -10,6 +10,13 @@ const industries = [
   { label: "Manufacturers", href: "/industries/manufacturers" },
 ];
 
+const solutionsNav = [
+  { label: "Cascade Intelligence", href: "/solutions#cascade" },
+  { label: "Inventory Intelligence", href: "/solutions#inventory" },
+  { label: "Margin Intelligence", href: "/solutions#margin" },
+  { label: "Delivery Intelligence", href: "/solutions#delivery" },
+];
+
 const resources = [
   { label: "Case Studies", href: "/case-studies" },
   { label: "ROI Calculator", href: "/tools" },
@@ -20,6 +27,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [industriesOpen, setIndustriesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--charcoal)]/90 backdrop-blur-sm">
@@ -30,7 +38,32 @@ export default function Navbar() {
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-[var(--muted)]" style={{ fontFamily: "var(--font-inter)" }}>
           <a href="/#problems" className="hover:text-[var(--off-white)] transition-colors">Problems</a>
-          <a href="/#solutions" className="hover:text-[var(--off-white)] transition-colors">Solutions</a>
+
+          {/* Solutions dropdown */}
+          <div className="relative" onMouseEnter={() => setSolutionsOpen(true)} onMouseLeave={() => setSolutionsOpen(false)}>
+            <button className="flex items-center gap-1 hover:text-[var(--off-white)] transition-colors">
+              Solutions
+              <svg className={`w-3 h-3 transition-transform duration-200 ${solutionsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 12 12">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {solutionsOpen && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 border border-[var(--border)] bg-[var(--charcoal-light)] rounded-sm overflow-hidden shadow-xl">
+                {solutionsNav.map((s) => (
+                  <Link key={s.href} href={s.href}
+                    className="block px-4 py-3 text-sm text-[var(--muted)] hover:text-[var(--off-white)] hover:bg-[var(--charcoal-mid)] transition-colors border-b border-[var(--border)] last:border-0"
+                    onClick={() => setSolutionsOpen(false)}>
+                    {s.label}
+                  </Link>
+                ))}
+                <Link href="/solutions"
+                  className="block px-4 py-3 text-sm font-medium text-[var(--coral)] hover:bg-[var(--charcoal-mid)] transition-colors"
+                  onClick={() => setSolutionsOpen(false)}>
+                  View All Solutions →
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* Industries dropdown */}
           <div className="relative" onMouseEnter={() => setIndustriesOpen(true)} onMouseLeave={() => setIndustriesOpen(false)}>
@@ -98,7 +131,12 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden bg-[var(--charcoal-light)] border-t border-[var(--border)] px-6 py-4 flex flex-col gap-4 text-sm">
           <a href="/#problems" onClick={() => setOpen(false)} className="text-[var(--muted)] hover:text-[var(--off-white)]">Problems</a>
-          <a href="/#solutions" onClick={() => setOpen(false)} className="text-[var(--muted)] hover:text-[var(--off-white)]">Solutions</a>
+          <p className="text-[var(--muted)] text-xs uppercase tracking-widest mt-1">Solutions</p>
+          {solutionsNav.map((s) => (
+            <Link key={s.href} href={s.href} onClick={() => setOpen(false)} className="pl-3 text-[var(--muted)] hover:text-[var(--off-white)]">
+              {s.label}
+            </Link>
+          ))}
           <p className="text-[var(--muted)] text-xs uppercase tracking-widest mt-1">Industries</p>
           {industries.map((ind) => (
             <Link key={ind.href} href={ind.href} onClick={() => setOpen(false)} className="pl-3 text-[var(--muted)] hover:text-[var(--off-white)]">
