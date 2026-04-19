@@ -5,8 +5,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 
-export const metadata = undefined;
-
 // ─── Animated node graph ──────────────────────────────────────────────────────
 type NodeDef = { id: string; label: string; x: number; y: number; alert?: boolean };
 type EdgeDef = { from: string; to: string; alert?: boolean };
