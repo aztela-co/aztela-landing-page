@@ -18,8 +18,12 @@ const industriesNav = [
 ];
 
 const toolsNav = [
-  { label: "ROI Calculator",      sub: "Quantify exposure",       href: "/tools/roi" },
-  { label: "Cascade Simulator",   sub: "Trace impact before it hits", href: "/tools/cascade" },
+  { label: "Stockout Predictor",        sub: "Distributors",   href: "/tools/distributor/stockout-predictor" },
+  { label: "Dead Stock Calculator",     sub: "Distributors",   href: "/tools/distributor/dead-stock" },
+  { label: "Stale Quote Calculator",    sub: "Wholesalers",    href: "/tools/wholesaler/stale-quote" },
+  { label: "Price Change Impact",       sub: "Wholesalers",    href: "/tools/wholesaler/price-change-impact" },
+  { label: "BOM Vulnerability Scanner", sub: "Manufacturers",  href: "/tools/manufacturer/bom-vulnerability" },
+  { label: "Cascade Simulator",         sub: "Manufacturers",  href: "/tools/cascade" },
 ];
 
 const resourcesNav = [

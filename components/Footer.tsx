@@ -15,10 +15,11 @@ const industries = [
 ];
 
 const resources = [
-  { label: "ROI Calculator",    href: "/tools/roi" },
-  { label: "Cascade Simulator", href: "/tools/cascade" },
-  { label: "Case Studies",      href: "/case-studies" },
-  { label: "Newsletter",        href: "/newsletter" },
+  { label: "All Tools",              href: "/tools" },
+  { label: "ROI Calculator",         href: "/tools/roi" },
+  { label: "BOM Vulnerability",      href: "/tools/manufacturer/bom-vulnerability" },
+  { label: "Case Studies",           href: "/case-studies" },
+  { label: "Newsletter",             href: "/newsletter" },
 ];
 
 export default function Footer() {

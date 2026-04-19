@@ -2,24 +2,78 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 
-const TOOLS = [
+const SEGMENTS = [
   {
-    id: "roi",
-    label: "ROI Calculator",
-    tag: "Quantify your exposure",
-    desc: "Input your revenue, locations, and operational profile. Get a conservative estimate of what data gaps are costing you — broken down by specific cost category.",
-    href: "/tools/roi",
-    segments: ["Distributors", "Wholesalers", "Manufacturers"],
+    label: "Distributors",
     color: "#4d80ff",
+    tools: [
+      {
+        label: "Branch Stockout Predictor",
+        desc: "Which branches will stockout in the next 14 days — and how much revenue is sitting in the gap.",
+        href: "/tools/distributor/stockout-predictor",
+        tag: "Inventory risk",
+      },
+      {
+        label: "Dead Stock Capital Calculator",
+        desc: "Quantify idle capital locked in slow and dead inventory — and what you could redeploy.",
+        href: "/tools/distributor/dead-stock",
+        tag: "Working capital",
+      },
+      {
+        label: "Transfer vs. Reorder Calculator",
+        desc: "Transfer from another branch or reorder from supplier? Get the exact cost comparison and recommendation.",
+        href: "/tools/distributor/transfer-vs-reorder",
+        tag: "Decision tool",
+      },
+    ],
   },
   {
-    id: "cascade",
-    label: "Cascade Simulator",
-    tag: "Trace impact before it hits",
-    desc: "Your top supplier misses by 3 weeks. Input your operation and watch the cascade ripple through your work orders, delivery commitments, and margin — in real time.",
-    href: "/tools/cascade",
-    segments: ["Manufacturers", "Distributors"],
+    label: "Wholesalers",
+    color: "#a78bfa",
+    tools: [
+      {
+        label: "Stale Quote Margin Leak Calculator",
+        desc: "Every day a quote sits open while costs move, margin shrinks. Calculate how much is already gone.",
+        href: "/tools/wholesaler/stale-quote",
+        tag: "Margin",
+      },
+      {
+        label: "Supplier Concentration Risk Score",
+        desc: "How exposed is your business to your top 3 suppliers — in revenue, margin, and pricing power.",
+        href: "/tools/wholesaler/supplier-concentration",
+        tag: "Supplier risk",
+      },
+      {
+        label: "Price Change Impact Estimator",
+        desc: "Supplier raised prices. See instantly what you can reprice, what you'll absorb, and the net margin hit.",
+        href: "/tools/wholesaler/price-change-impact",
+        tag: "Margin",
+      },
+    ],
+  },
+  {
+    label: "Manufacturers",
     color: "#f59e0b",
+    tools: [
+      {
+        label: "BOM Vulnerability Scanner",
+        desc: "How many active work orders are one supplier away from stopping? Map your single-source exposure.",
+        href: "/tools/manufacturer/bom-vulnerability",
+        tag: "Production risk",
+      },
+      {
+        label: "Cascade Impact Simulator",
+        desc: "Your top supplier misses by 3 weeks. Trace the full cascade through work orders, deliveries, and margin.",
+        href: "/tools/cascade",
+        tag: "Cascade risk",
+      },
+      {
+        label: "ROI Calculator",
+        desc: "Quantify what operational data gaps are costing across your production, freight, and delivery operations.",
+        href: "/tools/roi",
+        tag: "ROI",
+      },
+    ],
   },
 ];
 
@@ -30,7 +84,7 @@ export default function ToolsHubPage() {
       <main className="pt-16">
 
         <section className="px-6 py-16 md:py-24 grid-bg">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-5xl mx-auto text-center">
             <Link
               href="/"
               className="inline-flex items-center gap-1 text-[var(--muted)] text-xs mb-8 hover:text-[var(--off-white)] transition-colors"
@@ -48,62 +102,66 @@ export default function ToolsHubPage() {
               Know what your operation is hiding — before it costs you.
             </h1>
             <p className="text-[var(--muted)] text-lg font-light max-w-xl mx-auto" style={{ fontFamily: "var(--font-inter)" }}>
-              Free tools built for ops leaders. No fluff — just numbers specific to your operation.
+              Free calculators built for ops leaders. Specific to your segment, your numbers, your problems.
             </p>
           </div>
         </section>
 
         <section className="px-6 py-14 md:py-20">
-          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
-            {TOOLS.map(tool => (
-              <Link
-                key={tool.id}
-                href={tool.href}
-                className="group border border-[var(--border)] rounded p-8 flex flex-col hover:border-[rgba(77,128,255,0.4)] transition-all duration-200 hover:bg-white/[0.015]"
-              >
-                <div className="flex items-center justify-between mb-5">
+          <div className="max-w-5xl mx-auto space-y-16">
+            {SEGMENTS.map(seg => (
+              <div key={seg.label}>
+                <div className="flex items-center gap-4 mb-6">
                   <span
-                    className="text-[9px] font-semibold uppercase tracking-[0.18em] px-2.5 py-1 rounded"
+                    className="text-xs font-semibold uppercase tracking-[0.18em] px-3 py-1.5 rounded"
                     style={{
                       fontFamily: "var(--font-inter)",
-                      color: tool.color,
-                      background: `${tool.color}15`,
-                      border: `1px solid ${tool.color}30`,
+                      color: seg.color,
+                      background: `${seg.color}15`,
+                      border: `1px solid ${seg.color}30`,
                     }}
                   >
-                    {tool.tag}
+                    {seg.label}
                   </span>
-                  <svg
-                    width="14" height="14" viewBox="0 0 14 14" fill="none"
-                    className="text-[var(--muted)] group-hover:text-[var(--coral)] transition-colors"
-                  >
-                    <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
                 </div>
 
-                <h2
-                  className="text-xl font-semibold text-[var(--off-white)] mb-3 group-hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-playfair)" }}
-                >
-                  {tool.label}
-                </h2>
-
-                <p className="text-sm text-[var(--muted)] leading-relaxed mb-6 flex-1" style={{ fontFamily: "var(--font-inter)" }}>
-                  {tool.desc}
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {tool.segments.map(s => (
-                    <span
-                      key={s}
-                      className="text-[10px] text-[var(--muted)] px-2.5 py-1 rounded border border-[var(--border)]"
-                      style={{ fontFamily: "var(--font-inter)" }}
+                <div className="grid md:grid-cols-3 gap-4">
+                  {seg.tools.map(tool => (
+                    <Link
+                      key={tool.href}
+                      href={tool.href}
+                      className="group border border-[var(--border)] rounded p-6 flex flex-col hover:border-[rgba(77,128,255,0.4)] transition-all duration-200 hover:bg-white/[0.015]"
                     >
-                      {s}
-                    </span>
+                      <div className="flex items-center justify-between mb-4">
+                        <span
+                          className="text-[9px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded"
+                          style={{
+                            fontFamily: "var(--font-inter)",
+                            color: seg.color,
+                            background: `${seg.color}15`,
+                          }}
+                        >
+                          {tool.tag}
+                        </span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                          className="text-[var(--muted)] group-hover:text-[var(--coral)] transition-colors">
+                          <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <h3
+                        className="text-base font-semibold text-[var(--off-white)] mb-2 group-hover:text-white transition-colors leading-snug"
+                        style={{ fontFamily: "var(--font-inter)" }}
+                      >
+                        {tool.label}
+                      </h3>
+                      <p className="text-sm text-[var(--muted)] leading-relaxed flex-1" style={{ fontFamily: "var(--font-inter)" }}>
+                        {tool.desc}
+                      </p>
+                    </Link>
                   ))}
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>
