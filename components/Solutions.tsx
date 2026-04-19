@@ -71,9 +71,9 @@ const segments = [
         outcomes: ["BOM-related scrap ↓ 80%", "Rework hours ↓ 65%", "Version mismatch incidents: eliminated"],
       },
       {
-        title: "Constraint Intelligence Dashboard",
-        body: "Real-time OEE per line with automated bottleneck identification. See your throughput constraint the moment it forms. Make shift decisions with live data, not yesterday's report.",
-        outcomes: ["OEE improvement: +18–25 pts", "Throughput ↑ 15%", "Shift supervisor decision time ↓ 70%"],
+        title: "Supplier Lead Time Intelligence",
+        body: "Actual vs. quoted lead times tracked per supplier, per component — updated daily. When a supplier starts slipping, you see it 10–14 days before it reaches your line. Enough time to source, reschedule, or notify customers on your terms.",
+        outcomes: ["Expedite freight ↓ 55–70%", "Line stoppages from supplier slip ↓ 80%", "Avg advance warning: 12 days"],
       },
       {
         title: "Internal Material Availability View",

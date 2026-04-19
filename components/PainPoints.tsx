@@ -66,9 +66,9 @@ const segments = [
         body: "Engineering updated the BOM. The floor kept running the old version. By the time someone caught it, you had a shift's worth of scrap, a rework queue, and a delivery you couldn't make. The engineering change took 10 minutes. The fallout took 3 days.",
       },
       {
-        urgency: "22-point OEE gap vs. your competitor",
-        title: "You hit 67% OEE last month. Your best competitor is running 89%. That gap is your profit leaving.",
-        body: "You know the number. You just can't see where it's going in real time. Bottlenecks form, compound, and get discovered in the end-of-shift report — hours after the damage is done. You're managing yesterday's floor, not today's.",
+        urgency: "Supplier slipped 11 days. Your line stopped 3.",
+        title: "You found out your component was late when the line ran dry — not 11 days earlier when it was obvious.",
+        body: "The data was there. The supplier's shipping confirmation, their historical slip rate, the lead time trend. Nobody was watching it. So the shortage hit your production floor instead of your inbox — and you expedited at a premium to recover what advance notice would have prevented entirely.",
       },
       {
         urgency: "6+ hrs of downtime from a location failure",

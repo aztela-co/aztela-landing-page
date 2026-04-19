@@ -71,7 +71,7 @@ const MODEL_ITEMS = [
   { label: "Work Order #4821", value: "Stage 3 / 5", type: "wip" },
   { label: "Supplier HV-442", value: "On time", type: "supplier" },
   { label: "Open quotes", value: "14 active", type: "pricing" },
-  { label: "Line 2 OEE", value: "84%", type: "floor" },
+  { label: "Delivery windows at risk", value: "3 this week", type: "floor", warn: true },
 ];
 
 function ModelWidget() {

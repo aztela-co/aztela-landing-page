@@ -62,16 +62,16 @@ const SEGMENTS = [
         tag: "Production risk",
       },
       {
+        label: "JIT Delivery Window Risk Calculator",
+        desc: "How many delivery windows are at risk from supplier slip? Calculate the cost of a missed sequence.",
+        href: "/tools/manufacturer/jit-delivery",
+        tag: "Delivery risk",
+      },
+      {
         label: "Cascade Impact Simulator",
         desc: "Your top supplier misses by 3 weeks. Trace the full cascade through work orders, deliveries, and margin.",
         href: "/tools/cascade",
         tag: "Cascade risk",
-      },
-      {
-        label: "ROI Calculator",
-        desc: "Quantify what operational data gaps are costing across your production, freight, and delivery operations.",
-        href: "/tools/roi",
-        tag: "ROI",
       },
     ],
   },
@@ -109,6 +109,41 @@ export default function ToolsHubPage() {
 
         <section className="px-6 py-14 md:py-20">
           <div className="max-w-5xl mx-auto space-y-16">
+            {/* ROI Calculator — cross-segment, pinned at top */}
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <span
+                  className="text-xs font-semibold uppercase tracking-[0.18em] px-3 py-1.5 rounded"
+                  style={{ fontFamily: "var(--font-inter)", color: "var(--coral)", background: "rgba(77,128,255,0.1)", border: "1px solid rgba(77,128,255,0.25)" }}
+                >
+                  All Segments
+                </span>
+                <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
+              </div>
+              <Link
+                href="/tools/roi"
+                className="group border border-[var(--border)] rounded p-6 flex items-center justify-between hover:border-[rgba(77,128,255,0.4)] transition-all duration-200 hover:bg-white/[0.015]"
+              >
+                <div>
+                  <span
+                    className="text-[9px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded mb-3 inline-block"
+                    style={{ fontFamily: "var(--font-inter)", color: "var(--coral)", background: "rgba(77,128,255,0.1)" }}
+                  >
+                    ROI
+                  </span>
+                  <h3 className="text-base font-semibold text-[var(--off-white)] mb-1 group-hover:text-white transition-colors" style={{ fontFamily: "var(--font-inter)" }}>
+                    Operational Intelligence ROI Calculator
+                  </h3>
+                  <p className="text-sm text-[var(--muted)]" style={{ fontFamily: "var(--font-inter)" }}>
+                    Quantify what data gaps are costing your operation — across all three segments. Input your numbers, get a dollar figure.
+                  </p>
+                </div>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="ml-6 flex-shrink-0 text-[var(--muted)] group-hover:text-[var(--coral)] transition-colors">
+                  <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+
             {SEGMENTS.map(seg => (
               <div key={seg.label}>
                 <div className="flex items-center gap-4 mb-6">

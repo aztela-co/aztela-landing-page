@@ -24,6 +24,7 @@ const toolsNav = [
   { label: "Stale Quote Calculator",  sub: "Wholesalers",    href: "/tools/wholesaler/stale-quote" },
   { label: "Price Change Impact",     sub: "Wholesalers",    href: "/tools/wholesaler/price-change-impact" },
   { label: "BOM Vulnerability",       sub: "Manufacturers",  href: "/tools/manufacturer/bom-vulnerability" },
+  { label: "JIT Delivery Risk",       sub: "Manufacturers",  href: "/tools/manufacturer/jit-delivery" },
   { label: "Cascade Simulator",       sub: "Manufacturers",  href: "/tools/cascade" },
 ];
 
