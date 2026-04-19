@@ -85,36 +85,44 @@ function badge(id: string, phase: Phase): { text: string; color: string; bg: str
   return null;
 }
 
-// Custom node
+// Custom node — matches page design system
 function OpNode({ data }: { data: Record<string, unknown> }) {
   const d = data as {
     label: string; sub: string; icon: string;
     bg: string; border: string; glow: string; tc: string;
     badge: { text: string; color: string; bg: string } | null;
   };
-  const handleStyle = { background: "transparent", border: "none", width: 6, height: 6 };
+  const h = { background: "transparent", border: "none", width: 1, height: 1, minWidth: 1 };
   return (
     <div style={{
-      width: 90, padding: "8px 8px 7px", borderRadius: 6,
+      width: 92, padding: "7px 10px 6px",
+      borderRadius: 2,
       background: d.bg, border: d.border, boxShadow: d.glow,
-      transition: "all 0.55s ease", textAlign: "center", position: "relative",
-      backdropFilter: "blur(4px)",
+      transition: "background 0.5s ease, border 0.5s ease, box-shadow 0.5s ease",
+      textAlign: "center", position: "relative",
     }}>
-      <Handle type="target" position={Position.Left}   style={handleStyle} />
-      <Handle type="target" position={Position.Top}    style={handleStyle} />
-      <Handle type="source" position={Position.Right}  style={handleStyle} />
-      <Handle type="source" position={Position.Bottom} style={handleStyle} />
+      <Handle type="target" position={Position.Left}   style={h} />
+      <Handle type="target" position={Position.Top}    style={h} />
+      <Handle type="source" position={Position.Right}  style={h} />
+      <Handle type="source" position={Position.Bottom} style={h} />
       {d.badge && (
         <div style={{
-          position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)",
-          background: d.badge.bg, border: `1px solid ${d.badge.color}40`,
-          color: d.badge.color, fontSize: 9, padding: "2px 7px", borderRadius: 3,
-          whiteSpace: "nowrap", fontFamily: "var(--font-inter)", fontWeight: 600, letterSpacing: "0.04em",
+          position: "absolute", top: -22, left: "50%", transform: "translateX(-50%)",
+          background: d.badge.bg, border: `1px solid ${d.badge.color}35`,
+          color: d.badge.color, fontSize: 8, padding: "2px 7px", borderRadius: 2,
+          whiteSpace: "nowrap", fontFamily: "var(--font-inter)", fontWeight: 600,
+          letterSpacing: "0.06em", textTransform: "uppercase" as const,
         }}>{d.badge.text}</div>
       )}
-      <div style={{ fontSize: 14, marginBottom: 4, color: d.tc, transition: "color 0.55s ease" }}>{d.icon as string}</div>
-      <div style={{ fontSize: 10, fontWeight: 600, color: d.tc, fontFamily: "var(--font-inter)", transition: "color 0.55s ease", lineHeight: 1.2 }}>{d.label as string}</div>
-      <div style={{ fontSize: 8.5, color: "rgba(180,190,210,0.4)", fontFamily: "var(--font-inter)", marginTop: 2 }}>{d.sub as string}</div>
+      <div style={{
+        fontSize: 10, fontWeight: 600, letterSpacing: "0.01em",
+        color: d.tc, fontFamily: "var(--font-inter)",
+        transition: "color 0.5s ease", lineHeight: 1.3,
+      }}>{d.label as string}</div>
+      <div style={{
+        fontSize: 8, color: "rgba(160,175,200,0.38)",
+        fontFamily: "var(--font-inter)", marginTop: 2,
+      }}>{d.sub as string}</div>
     </div>
   );
 }
@@ -208,7 +216,7 @@ export default function OperationalNetwork() {
           </p>
         </div>
 
-        <div ref={ref} className="border border-[var(--border)] rounded-sm overflow-hidden" style={{ background: "rgba(10,11,16,0.85)" }}>
+        <div ref={ref} className="border border-[var(--border)] overflow-hidden" style={{ background: "rgba(10,12,18,0.9)" }}>
 
           {/* Status bar */}
           <div className="border-b border-[var(--border)] px-6 py-3 flex items-center gap-3">

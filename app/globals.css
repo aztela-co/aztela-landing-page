@@ -26,6 +26,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* React Flow overrides — match page design system */
+.react-flow__node { box-shadow: none !important; }
+.react-flow__node.selected, .react-flow__node:focus { outline: none !important; box-shadow: none !important; }
+.react-flow__edge-path { transition: stroke 0.6s ease; }
+.react-flow__attribution { display: none !important; }
+
 /* Scroll-triggered animation */
 .reveal {
   opacity: 0;
