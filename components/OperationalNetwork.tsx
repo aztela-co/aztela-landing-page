@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ReactFlow, useNodesState, useEdgesState, Background, BackgroundVariant, type Node, type Edge } from "@xyflow/react";
+import { ReactFlow, Handle, Position, useNodesState, useEdgesState, Background, BackgroundVariant, type Node, type Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 type Phase = "idle" | "alerting" | "cascading" | "analyzing" | "intercepting" | "resolved";
@@ -92,24 +92,29 @@ function OpNode({ data }: { data: Record<string, unknown> }) {
     bg: string; border: string; glow: string; tc: string;
     badge: { text: string; color: string; bg: string } | null;
   };
+  const handleStyle = { background: "transparent", border: "none", width: 6, height: 6 };
   return (
     <div style={{
-      width: 108, padding: "10px 10px 8px", borderRadius: 8,
+      width: 90, padding: "8px 8px 7px", borderRadius: 6,
       background: d.bg, border: d.border, boxShadow: d.glow,
       transition: "all 0.55s ease", textAlign: "center", position: "relative",
       backdropFilter: "blur(4px)",
     }}>
+      <Handle type="target" position={Position.Left}   style={handleStyle} />
+      <Handle type="target" position={Position.Top}    style={handleStyle} />
+      <Handle type="source" position={Position.Right}  style={handleStyle} />
+      <Handle type="source" position={Position.Bottom} style={handleStyle} />
       {d.badge && (
         <div style={{
-          position: "absolute", top: -26, left: "50%", transform: "translateX(-50%)",
+          position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)",
           background: d.badge.bg, border: `1px solid ${d.badge.color}40`,
-          color: d.badge.color, fontSize: 9, padding: "3px 8px", borderRadius: 4,
-          whiteSpace: "nowrap", fontFamily: "var(--font-inter)", fontWeight: 600, letterSpacing: "0.05em",
+          color: d.badge.color, fontSize: 9, padding: "2px 7px", borderRadius: 3,
+          whiteSpace: "nowrap", fontFamily: "var(--font-inter)", fontWeight: 600, letterSpacing: "0.04em",
         }}>{d.badge.text}</div>
       )}
-      <div style={{ fontSize: 17, marginBottom: 5, color: d.tc, transition: "color 0.55s ease" }}>{d.icon as string}</div>
-      <div style={{ fontSize: 11, fontWeight: 600, color: d.tc, fontFamily: "var(--font-inter)", transition: "color 0.55s ease", lineHeight: 1.2 }}>{d.label as string}</div>
-      <div style={{ fontSize: 9, color: "rgba(180,190,210,0.45)", fontFamily: "var(--font-inter)", marginTop: 3 }}>{d.sub as string}</div>
+      <div style={{ fontSize: 14, marginBottom: 4, color: d.tc, transition: "color 0.55s ease" }}>{d.icon as string}</div>
+      <div style={{ fontSize: 10, fontWeight: 600, color: d.tc, fontFamily: "var(--font-inter)", transition: "color 0.55s ease", lineHeight: 1.2 }}>{d.label as string}</div>
+      <div style={{ fontSize: 8.5, color: "rgba(180,190,210,0.4)", fontFamily: "var(--font-inter)", marginTop: 2 }}>{d.sub as string}</div>
     </div>
   );
 }
