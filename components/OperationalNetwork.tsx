@@ -75,7 +75,7 @@ function nodeStyle(id: string, phase: Phase) {
     const c = phase === "intercepting" ? "#4ade80" : "#4d80ff";
     return { bg: `${c}12`, border: `1px solid ${c}45`, glow: `0 0 18px ${c}28`, tc: c };
   }
-  return { bg: "rgba(77,128,255,0.08)", border: "1px solid rgba(77,128,255,0.18)", glow: "none", tc: "rgba(200,210,230,0.6)" };
+  return { bg: "var(--charcoal)", border: "1px solid var(--border)", glow: "none", tc: "var(--muted)" };
 }
 
 function badge(id: string, phase: Phase): { text: string; color: string; bg: string } | null {
@@ -200,7 +200,7 @@ export default function OperationalNetwork() {
   const status = STATUS[phase];
 
   return (
-    <section className="px-6 py-24 md:py-32" style={{ background: "var(--charcoal)" }}>
+    <section className="px-6 py-20 md:py-28 bg-[var(--charcoal-light)]">
       <div className="max-w-6xl mx-auto">
 
         <div className="mb-14">
@@ -216,7 +216,7 @@ export default function OperationalNetwork() {
           </p>
         </div>
 
-        <div ref={ref} className="border border-[var(--border)] overflow-hidden" style={{ background: "rgba(10,12,18,0.9)" }}>
+        <div ref={ref} className="border border-[var(--border)] overflow-hidden" style={{ background: "transparent" }}>
 
           {/* Status bar */}
           <div className="border-b border-[var(--border)] px-6 py-3 flex items-center gap-3">
@@ -244,7 +244,7 @@ export default function OperationalNetwork() {
               proOptions={{ hideAttribution: true }}
               style={{ background: "transparent" }}
             >
-              <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="rgba(77,128,255,0.06)" />
+              <Background variant={BackgroundVariant.Dots} gap={24} size={0.8} color="rgba(77,128,255,0.07)" />
             </ReactFlow>
 
             {/* Intercept overlay */}
