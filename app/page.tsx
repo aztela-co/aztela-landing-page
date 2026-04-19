@@ -3,7 +3,7 @@ import Hero from "@/components/Hero";
 import PainPoints from "@/components/PainPoints";
 import Solutions from "@/components/Solutions";
 import HowItConnects from "@/components/HowItConnects";
-import OperationalNetwork from "@/components/OperationalNetwork";
+import DataStack from "@/components/DataStack";
 import WhoWeServe from "@/components/WhoWeServe";
 import CTABanner from "@/components/CTABanner";
 import Footer from "@/components/Footer";
@@ -17,7 +17,7 @@ export default function Home() {
         <PainPoints />
         <Solutions />
         <HowItConnects />
-        <OperationalNetwork />
+        <DataStack />
         <WhoWeServe />
         <CTABanner />
       </main>
