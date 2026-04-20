@@ -17,10 +17,10 @@ function prng(seed: number) { return ((seed * 2654435761) >>> 0) / 4294967296; }
 type WOPriority = "critical" | "high" | "standard";
 
 export default function WorkOrderPrioritizationPage() {
-  const [workOrders,    setWorkOrders]    = useState(80);
+  const [workOrders,    setWorkOrders]    = useState(160);
   const [shortPct,      setShortPct]      = useState(30);   // % WOs affected by short components
   const [mtoPct,        setMtoPct]        = useState(60);   // % make-to-order
-  const [avgOrderVal,   setAvgOrderVal]   = useState(22);   // $K
+  const [avgOrderVal,   setAvgOrderVal]   = useState(40);   // $K
   const [penaltyPct,    setPenaltyPct]    = useState(5);    // % late penalty
   const [margin,        setMargin]        = useState(18);   // %
   const [calculated,    setCalculated]    = useState(false);
@@ -72,7 +72,7 @@ export default function WorkOrderPrioritizationPage() {
   };
 
   const SLIDERS = [
-    { label: "Active work orders",                    val: workOrders,  set: setWorkOrders,  min: 20,  max: 500, step: 5,  disp: String(workOrders) },
+    { label: "Active work orders",                    val: workOrders,  set: setWorkOrders,  min: 20,  max: 2000, step: 10, disp: String(workOrders) },
     { label: "% WOs affected by component shortage",  val: shortPct,    set: setShortPct,    min: 5,   max: 70,  step: 5,  disp: `${shortPct}%` },
     { label: "% production make-to-order (MTO)",      val: mtoPct,      set: setMtoPct,      min: 10,  max: 90,  step: 5,  disp: `${mtoPct}%` },
     { label: "Average order value ($K)",              val: avgOrderVal, set: setAvgOrderVal, min: 5,   max: 500, step: 5,  disp: `$${avgOrderVal}K` },
@@ -206,14 +206,17 @@ export default function WorkOrderPrioritizationPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Revenue in affected MTO work orders",          value: revenueInPlay,   color: "var(--off-white)" },
-                    { label: "Penalty saved by intelligent sequencing",       value: penaltySaving,   color: "#4ade80" },
-                    { label: "Margin protected by running right orders first",value: marginSavedWith, color: "#4ade80" },
-                    { label: "Total value of intelligent prioritization",     value: totalBenefit,    color: "#4ade80" },
+                    { label: "Revenue in affected MTO work orders",           value: revenueInPlay,   sub: `${mtoAffected} MTO WOs × $${avgOrderVal}K avg`,                                                                    color: "var(--off-white)" },
+                    { label: "Penalty saved by intelligent sequencing",        value: penaltySaving,   sub: `${lateWithout - lateWith} fewer late WOs — from ${lateWithout} to ${lateWith}`,                                     color: "#4ade80" },
+                    { label: "Margin protected by running right orders first", value: marginSavedWith, sub: `${((marginSavedWith / revenueInPlay) * 100).toFixed(1)}% of MTO revenue protected`,                                  color: "#4ade80" },
+                    { label: "Total value of intelligent prioritization",      value: totalBenefit,    sub: `${((totalBenefit / revenueInPlay) * 100).toFixed(1)}% return on affected pipeline`,                                  color: "#4ade80" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5 max-w-[180px]" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

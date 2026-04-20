@@ -16,12 +16,12 @@ function prng(seed: number) { return ((seed * 2654435761) >>> 0) / 4294967296; }
 type RiskTier = "critical" | "watch" | "stable";
 
 export default function SupplierLeadTimePage() {
-  const [suppliers,     setSuppliers]     = useState(14);
+  const [suppliers,     setSuppliers]     = useState(22);
   const [avgLeadDays,   setAvgLeadDays]   = useState(24);
   const [variability,   setVariability]   = useState(28);  // % coefficient of variation
   const [criticalPct,   setCriticalPct]   = useState(35);  // % single-source
-  const [monthlySpend,  setMonthlySpend]  = useState(420); // $K
-  const [stoppageCost,  setStoppageCost]  = useState(3800); // $/hr
+  const [monthlySpend,  setMonthlySpend]  = useState(680); // $K
+  const [stoppageCost,  setStoppageCost]  = useState(6500); // $/hr
   const [calculated,    setCalculated]    = useState(false);
 
   // Risk model
@@ -74,8 +74,8 @@ export default function SupplierLeadTimePage() {
     { label: "Average quoted lead time (days)",         val: avgLeadDays,  set: setAvgLeadDays,  min: 5,   max: 90,    step: 1,   disp: `${avgLeadDays}d` },
     { label: "Lead time variability (CV %)",            val: variability,  set: setVariability,  min: 5,   max: 60,    step: 1,   disp: `${variability}%` },
     { label: "% single-source components",              val: criticalPct,  set: setCriticalPct,  min: 5,   max: 90,    step: 5,   disp: `${criticalPct}%` },
-    { label: "Monthly component spend ($K)",            val: monthlySpend, set: setMonthlySpend, min: 20,  max: 5000,  step: 20,  disp: `$${monthlySpend}K` },
-    { label: "Line stoppage cost per hour",             val: stoppageCost, set: setStoppageCost, min: 500, max: 15000, step: 100, disp: `$${stoppageCost.toLocaleString()}` },
+    { label: "Monthly component spend ($K)",            val: monthlySpend, set: setMonthlySpend, min: 50,  max: 10000, step: 50,  disp: `$${monthlySpend}K` },
+    { label: "Line stoppage cost per hour",             val: stoppageCost, set: setStoppageCost, min: 500, max: 20000, step: 100, disp: `$${stoppageCost.toLocaleString()}` },
   ];
 
   // Gauge arc
@@ -208,14 +208,17 @@ export default function SupplierLeadTimePage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "95th-percentile lead time slip (days)",              value: `${Math.round(exposureDays)}d`,       color: "#f87171",  raw: false },
-                    { label: "Inventory exposure from timing uncertainty",          value: fmt(inventoryExposure),              color: "#f59e0b",  raw: false },
-                    { label: `Expected line stoppages/yr from supplier slip — ${annualSlippages} events`, value: fmt(annualStoppageCost), color: "#f87171", raw: false },
-                    { label: "Total annual exposure (inventory + stoppages)",       value: fmt(totalExposure),                  color: "#4ade80",  raw: false },
+                    { label: "95th-percentile lead time slip (days)",              value: `${Math.round(exposureDays)}d`,  sub: `${variability}% CV × ${avgLeadDays}d quoted LT × 1.65 z-score`,                                          color: "#f87171" },
+                    { label: "Inventory exposure from timing uncertainty",          value: fmt(inventoryExposure),          sub: `${((inventoryExposure / (monthlySpend * 1000)) * 100).toFixed(0)}% of monthly spend held as timing buffer`, color: "#f59e0b" },
+                    { label: `Expected line stoppages/yr from supplier slip — ${annualSlippages} events`, value: fmt(annualStoppageCost), sub: `${((annualStoppageCost / (monthlySpend * 12 * 1000)) * 100).toFixed(1)}% of annual component spend lost to slip`, color: "#f87171" },
+                    { label: "Total annual exposure (inventory + stoppages)",       value: fmt(totalExposure),              sub: `${highRiskSuppliers} of ${suppliers} suppliers driving ${((highRiskSuppliers / Math.max(suppliers, 1)) * 100).toFixed(0)}% of risk`, color: "var(--off-white)" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{row.value}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{row.value}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5 max-w-[180px]" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

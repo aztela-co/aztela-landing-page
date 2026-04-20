@@ -12,8 +12,8 @@ function fmt(n: number) {
 }
 
 export default function StaleQuotePage() {
-  const [openQuotes,    setOpenQuotes]    = useState(120);
-  const [avgQuoteVal,   setAvgQuoteVal]   = useState(28);
+  const [openQuotes,    setOpenQuotes]    = useState(200);
+  const [avgQuoteVal,   setAvgQuoteVal]   = useState(45);
   const [avgAge,        setAvgAge]        = useState(18);
   const [priceMovement, setPriceMovement] = useState(2.4);
   const [repricePct,    setRepricePct]    = useState(40);
@@ -49,8 +49,8 @@ export default function StaleQuotePage() {
   const pathActive = `M 0 ${SH} ` + Array.from({ length: avgAge + 1 }, (_, d) => `L ${(d / maxDays) * SW} ${toY(erosionAtDay(d))}`).join(" ");
 
   const SLIDERS = [
-    { label: "Open quotes right now",             val: openQuotes,    set: setOpenQuotes,    min: 5,   max: 500, step: 5,   disp: String(openQuotes) },
-    { label: "Average quote value ($K)",          val: avgQuoteVal,   set: setAvgQuoteVal,   min: 1,   max: 500, step: 1,   disp: `$${avgQuoteVal}K` },
+    { label: "Open quotes right now",             val: openQuotes,    set: setOpenQuotes,    min: 20,  max: 1000, step: 10,  disp: String(openQuotes) },
+    { label: "Average quote value ($K)",          val: avgQuoteVal,   set: setAvgQuoteVal,   min: 5,   max: 500,  step: 5,   disp: `$${avgQuoteVal}K` },
     { label: "Average quote age (days)",          val: avgAge,        set: setAvgAge,        min: 1,   max: 60,  step: 1,   disp: `${avgAge} days` },
     { label: "Supplier price movement / month",   val: priceMovement, set: setPriceMovement, min: 0.5, max: 8,   step: 0.1, disp: `${priceMovement}%` },
     { label: "% of quotes you can still reprice", val: repricePct,    set: setRepricePct,    min: 0,   max: 100, step: 5,   disp: `${repricePct}%` },
@@ -173,14 +173,17 @@ export default function StaleQuotePage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Total open quote value",              value: totalQuoteValue,    color: "var(--off-white)" },
-                    { label: "Margin already eroded by cost drift", value: totalErosion,       color: "#f87171" },
-                    { label: "Recoverable by repricing now",        value: recoverableErosion, color: "#f59e0b" },
-                    { label: "Margin you'll absorb (can't reprice)",value: absorbedLoss,       color: "#f87171" },
+                    { label: "Total open quote value",              value: totalQuoteValue,    sub: `${openQuotes} quotes averaging $${avgQuoteVal}K`,                                              color: "var(--off-white)" },
+                    { label: "Margin already eroded by cost drift", value: totalErosion,       sub: `${((totalErosion / totalQuoteValue) * 100).toFixed(1)}% of pipeline value lost`,               color: "#f87171" },
+                    { label: "Recoverable by repricing now",        value: recoverableErosion, sub: `${repricePct}% of quotes still actionable`,                                                     color: "#f59e0b" },
+                    { label: "Margin you'll absorb (can't reprice)",value: absorbedLoss,       sub: `${((absorbedLoss / (totalQuoteValue * margin / 100)) * 100).toFixed(0)}% of target margin gone`,color: "#f87171" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

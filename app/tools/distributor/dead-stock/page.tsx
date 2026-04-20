@@ -12,7 +12,7 @@ function fmt(n: number) {
 }
 
 export default function DeadStockPage() {
-  const [invValue,   setInvValue]   = useState(8);
+  const [invValue,   setInvValue]   = useState(22);
   const [pct30,      setPct30]      = useState(18);
   const [pct60,      setPct60]      = useState(10);
   const [pct90,      setPct90]      = useState(6);
@@ -31,7 +31,7 @@ export default function DeadStockPage() {
   const opportunityCost  = redeployableCapital * 0.06; // 6% could be earning if deployed
 
   const SLIDERS = [
-    { label: "Total inventory value",          val: invValue,  set: setInvValue,  min: 0.5, max: 50,  step: 0.5, display: `$${invValue}M` },
+    { label: "Total inventory value",          val: invValue,  set: setInvValue,  min: 1,   max: 200, step: 1,   display: `$${invValue}M` },
     { label: "Inventory 30–60 days no movement", val: pct30,  set: setPct30,     min: 0,   max: 40,  step: 1,   display: `${pct30}%` },
     { label: "Inventory 60–90 days no movement", val: pct60,  set: setPct60,     min: 0,   max: 30,  step: 1,   display: `${pct60}%` },
     { label: "Inventory 90+ days no movement",   val: pct90,  set: setPct90,     min: 0,   max: 20,  step: 1,   display: `${pct90}%` },
@@ -111,17 +111,32 @@ export default function DeadStockPage() {
                   ))}
                 </div>
 
+                {/* Idle capital headline */}
+                <div className="border border-[var(--border)] rounded-sm p-5 mb-4 flex items-center justify-between" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <div>
+                    <p className="text-xs text-[var(--muted)] uppercase tracking-widest mb-1" style={{ fontFamily: "var(--font-inter)" }}>Idle capital (60d+ no movement)</p>
+                    <p className="text-3xl font-bold text-red-400" style={{ fontFamily: "var(--font-inter)" }}>{fmt(slow60 + dead90)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-[var(--muted)] mb-1" style={{ fontFamily: "var(--font-inter)" }}>of total inventory</p>
+                    <p className="text-3xl font-bold" style={{ color: (pct60 + pct90) > 20 ? "#f87171" : "#f59e0b", fontFamily: "var(--font-inter)" }}>{pct60 + pct90}%</p>
+                  </div>
+                </div>
+
                 {/* Key numbers */}
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Annual carrying cost of dead & at-risk stock", value: carryingCost, color: "#f87171" },
-                    { label: "Recoverable if liquidated at 40¢ on the dollar", value: recoveryAt40c, color: "#f59e0b" },
-                    { label: "Capital you could redeploy to active demand", value: redeployableCapital, color: "#4ade80" },
-                    { label: "Opportunity cost (6% if redeployed)",          value: opportunityCost, color: "#4d80ff" },
+                    { label: "Annual carrying cost of dead & at-risk stock", value: carryingCost,       sub: `${((carryingCost / totalInv) * 100).toFixed(1)}% of total inventory value/yr`, color: "#f87171" },
+                    { label: "Recoverable if liquidated at 40¢ on the dollar", value: recoveryAt40c,   sub: `${((recoveryAt40c / totalInv) * 100).toFixed(1)}% of inventory recovered`,        color: "#f59e0b" },
+                    { label: "Capital you could redeploy to active demand",   value: redeployableCapital, sub: `${((redeployableCapital / totalInv) * 100).toFixed(1)}% of inventory unlocked`, color: "#4ade80" },
+                    { label: "Opportunity cost (6% if redeployed)",           value: opportunityCost,  sub: "foregone return on idle capital",                                                  color: "#4d80ff" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

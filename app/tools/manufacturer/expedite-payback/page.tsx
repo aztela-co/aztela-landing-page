@@ -12,9 +12,9 @@ function fmt(n: number) {
 }
 
 export default function ExpeditePaybackPage() {
-  const [monthlyExpedite, setMonthlyExpedite] = useState(28);   // $K
+  const [monthlyExpedite, setMonthlyExpedite] = useState(55);   // $K
   const [avoidablePct,    setAvoidablePct]    = useState(55);   // %
-  const [revenue,         setRevenue]         = useState(35);   // $M
+  const [revenue,         setRevenue]         = useState(85);   // $M
   const [leadDays,        setLeadDays]        = useState(10);   // days advance notice
   const [calculated,      setCalculated]      = useState(false);
 
@@ -29,9 +29,9 @@ export default function ExpeditePaybackPage() {
   const breakEvenMonth      = Math.ceil(annualExpedite * 0.08 / monthlySaving); // rough Aztela cost proxy = 8% of annual expedite
 
   const SLIDERS = [
-    { label: "Monthly expedite freight spend",        val: monthlyExpedite, set: setMonthlyExpedite, min: 2,   max: 300,  step: 1,  disp: `$${monthlyExpedite}K` },
+    { label: "Monthly expedite freight spend",        val: monthlyExpedite, set: setMonthlyExpedite, min: 5,   max: 500,  step: 5,  disp: `$${monthlyExpedite}K` },
     { label: "% of expedite that is avoidable",       val: avoidablePct,    set: setAvoidablePct,    min: 20,  max: 85,   step: 5,  disp: `${avoidablePct}%` },
-    { label: "Annual Revenue",                        val: revenue,         set: setRevenue,         min: 5,   max: 250,  step: 1,  disp: `$${revenue}M` },
+    { label: "Annual Revenue",                        val: revenue,         set: setRevenue,         min: 20,  max: 750,  step: 5,  disp: `$${revenue}M` },
     { label: "Advance notice Aztela provides (days)", val: leadDays,        set: setLeadDays,        min: 3,   max: 21,   step: 1,  disp: `${leadDays}d` },
   ];
 
@@ -150,14 +150,17 @@ export default function ExpeditePaybackPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Annual expedite freight spend",                    value: annualExpedite,      color: "#f87171" },
-                    { label: `Avoidable with ${leadDays}-day advance visibility`, value: avoidableAnnual,    color: "#f59e0b" },
-                    { label: "Procurement efficiency savings (better lead time)",  value: procSavings,        color: "#4d80ff" },
-                    { label: "Total annual recoverable",                           value: totalAnnualSavings, color: "#4ade80" },
+                    { label: "Annual expedite freight spend",                    value: annualExpedite,      sub: `${((annualExpedite / (revenue * 1_000_000)) * 100).toFixed(2)}% of revenue — a hidden P&L tax`,    color: "#f87171" },
+                    { label: `Avoidable with ${leadDays}-day advance visibility`, value: avoidableAnnual,    sub: `${avoidablePct}% of expedite is a tax on late data, not logistics cost`,                            color: "#f59e0b" },
+                    { label: "Procurement efficiency savings (better lead time)", value: procSavings,         sub: "better advance notice → standard rates instead of emergency premium",                               color: "#4d80ff" },
+                    { label: "Total annual recoverable",                          value: totalAnnualSavings,  sub: `${((totalAnnualSavings / annualExpedite) * 100).toFixed(0)}% of current expedite spend recoverable`, color: "#4ade80" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5 max-w-[180px]" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

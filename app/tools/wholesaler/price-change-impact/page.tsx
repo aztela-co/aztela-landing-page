@@ -12,8 +12,8 @@ function fmt(n: number) {
 }
 
 export default function PriceChangeImpactPage() {
-  const [openQuotes,   setOpenQuotes]   = useState(150);
-  const [avgOrderVal,  setAvgOrderVal]  = useState(22);
+  const [openQuotes,   setOpenQuotes]   = useState(220);
+  const [avgOrderVal,  setAvgOrderVal]  = useState(38);
   const [priceIncrease,setPriceIncrease]= useState(5);
   const [fixedPct,     setFixedPct]     = useState(35);
   const [margin,       setMargin]       = useState(17);
@@ -35,8 +35,8 @@ export default function PriceChangeImpactPage() {
   const sevColor     = severity === "Critical" ? "#f87171" : severity === "Elevated" ? "#f59e0b" : "#4ade80";
 
   const SLIDERS = [
-    { label: "Number of open quotes",              val: openQuotes,    set: setOpenQuotes,    min: 5,   max: 500, step: 5,   display: String(openQuotes) },
-    { label: "Average order value ($K)",           val: avgOrderVal,   set: setAvgOrderVal,   min: 1,   max: 500, step: 1,   display: `$${avgOrderVal}K` },
+    { label: "Number of open quotes",              val: openQuotes,    set: setOpenQuotes,    min: 20,  max: 1000, step: 10,  display: String(openQuotes) },
+    { label: "Average order value ($K)",           val: avgOrderVal,   set: setAvgOrderVal,   min: 5,   max: 500,  step: 5,   display: `$${avgOrderVal}K` },
     { label: "Supplier price increase",            val: priceIncrease, set: setPriceIncrease, min: 1,   max: 20,  step: 0.5, display: `${priceIncrease}%` },
     { label: "% of quotes already price-committed",val: fixedPct,      set: setFixedPct,      min: 0,   max: 100, step: 5,   display: `${fixedPct}%` },
     { label: "Current gross margin",               val: margin,        set: setMargin,        min: 5,   max: 50,  step: 1,   display: `${margin}%` },
@@ -116,13 +116,16 @@ export default function PriceChangeImpactPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Margin absorbed on fixed-price commits",   value: costIncreaseOnFixed,  color: "#f87171" },
-                    { label: "Margin recovered by repricing open quotes",value: recoveredByRepricing, color: "#4ade80" },
-                    { label: "Net margin impact you cannot escape",       value: netMarginImpact,      color: "#f87171" },
+                    { label: "Margin absorbed on fixed-price commits",   value: costIncreaseOnFixed,  sub: `${((costIncreaseOnFixed / marginBefore) * 100).toFixed(0)}% of gross margin on this pipeline`, color: "#f87171" },
+                    { label: "Margin recovered by repricing open quotes",value: recoveredByRepricing, sub: `${(100 - fixedPct)}% of pipeline still actionable`,                                            color: "#4ade80" },
+                    { label: "Net margin impact you cannot escape",       value: netMarginImpact,      sub: `effective margin drops ${(margin - effectiveMarginAfter).toFixed(1)} pts to ${effectiveMarginAfter.toFixed(1)}%`, color: "#f87171" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

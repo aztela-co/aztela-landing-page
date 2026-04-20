@@ -12,11 +12,11 @@ function fmt(n: number) {
 }
 
 export default function SafetyStockROIPage() {
-  const [components,    setComponents]    = useState(12);
-  const [monthlySpend,  setMonthlySpend]  = useState(180);  // $K
+  const [components,    setComponents]    = useState(18);
+  const [monthlySpend,  setMonthlySpend]  = useState(380);  // $K
   const [leadTime,      setLeadTime]      = useState(28);   // days
   const [variability,   setVariability]   = useState(22);   // %
-  const [stoppageCost,  setStoppageCost]  = useState(4200); // $/hr
+  const [stoppageCost,  setStoppageCost]  = useState(6800); // $/hr
   const [stoppageHrs,   setStoppageHrs]   = useState(6);    // hrs
   const [calculated,    setCalculated]    = useState(false);
 
@@ -44,10 +44,10 @@ export default function SafetyStockROIPage() {
 
   const SLIDERS = [
     { label: "Single-source components to protect",   val: components,   set: setComponents,   min: 1,   max: 50,    step: 1,   disp: String(components) },
-    { label: "Monthly spend on these components ($K)", val: monthlySpend, set: setMonthlySpend, min: 10,  max: 2000,  step: 10,  disp: `$${monthlySpend}K` },
+    { label: "Monthly spend on these components ($K)", val: monthlySpend, set: setMonthlySpend, min: 50,  max: 5000,  step: 50,  disp: `$${monthlySpend}K` },
     { label: "Average supplier lead time (days)",      val: leadTime,     set: setLeadTime,     min: 5,   max: 90,    step: 1,   disp: `${leadTime}d` },
     { label: "Lead time variability",                  val: variability,  set: setVariability,  min: 5,   max: 50,    step: 1,   disp: `${variability}%` },
-    { label: "Line stoppage cost per hour",            val: stoppageCost, set: setStoppageCost, min: 500, max: 12000, step: 100, disp: `$${stoppageCost.toLocaleString()}` },
+    { label: "Line stoppage cost per hour",            val: stoppageCost, set: setStoppageCost, min: 500, max: 20000, step: 100, disp: `$${stoppageCost.toLocaleString()}` },
     { label: "Average stoppage duration (hours)",      val: stoppageHrs,  set: setStoppageHrs,  min: 1,   max: 24,    step: 1,   disp: `${stoppageHrs}h` },
   ];
 
@@ -161,14 +161,17 @@ export default function SafetyStockROIPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Safety stock value to hold",                  value: safetyStockValue,    color: "#4d80ff" },
-                    { label: "Annual carrying cost of that buffer",          value: annualCarryCost,     color: "#4d80ff" },
-                    { label: `Expected stoppages/yr without buffer — ${annualStoppages} events`, value: annualStoppageCost, color: "#f87171" },
-                    { label: "Net annual saving (stoppages avoided − carry)", value: Math.max(netAnnualSaving, 0), color: "#4ade80" },
+                    { label: "Safety stock value to hold",                    value: safetyStockValue,              sub: `${safetyStockDays.toFixed(0)} days of buffer at 95th-percentile service level`,          color: "#4d80ff" },
+                    { label: "Annual carrying cost of that buffer",            value: annualCarryCost,               sub: `22% annual carry rate on $${fmt(safetyStockValue)} buffer`,                              color: "#4d80ff" },
+                    { label: `Expected stoppages/yr without buffer — ${annualStoppages} events`, value: annualStoppageCost, sub: `${((annualStoppageCost / (monthlySpendVal * 12)) * 100).toFixed(1)}% of annual component spend lost to stoppages`, color: "#f87171" },
+                    { label: "Net annual saving (stoppages avoided − carry)",  value: Math.max(netAnnualSaving, 0),  sub: `${roi.toFixed(1)}x ROI — buffer pays back in ${paybackMonths} month${paybackMonths !== 1 ? "s" : ""}`, color: "#4ade80" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5 max-w-[180px]" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

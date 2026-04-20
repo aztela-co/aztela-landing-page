@@ -12,7 +12,7 @@ function fmt(n: number) {
 }
 
 export default function SupplierConcentrationPage() {
-  const [revenue,    setRevenue]    = useState(35);
+  const [revenue,    setRevenue]    = useState(95);
   const [sup1Pct,    setSup1Pct]    = useState(32);
   const [sup2Pct,    setSup2Pct]    = useState(20);
   const [sup3Pct,    setSup3Pct]    = useState(13);
@@ -39,7 +39,7 @@ export default function SupplierConcentrationPage() {
   const pricingLeverage = Math.round(sup1Rev * 0.04); // 4% price increase impact if they push it
 
   const SLIDERS = [
-    { label: "Annual Revenue",                val: revenue, set: setRevenue, min: 5,  max: 250, step: 1,  display: `$${revenue}M` },
+    { label: "Annual Revenue",                val: revenue, set: setRevenue, min: 20, max: 500, step: 5,  display: `$${revenue}M` },
     { label: "Top supplier — % of revenue",   val: sup1Pct, set: setSup1Pct, min: 5,  max: 80,  step: 1,  display: `${sup1Pct}%` },
     { label: "2nd supplier — % of revenue",   val: sup2Pct, set: setSup2Pct, min: 1,  max: 60,  step: 1,  display: `${sup2Pct}%` },
     { label: "3rd supplier — % of revenue",   val: sup3Pct, set: setSup3Pct, min: 1,  max: 40,  step: 1,  display: `${sup3Pct}%` },
@@ -125,13 +125,16 @@ export default function SupplierConcentrationPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Revenue at risk if top supplier disrupted 30 days", value: sup1Disruption, color: "#f87171" },
-                    { label: "Margin at risk from top supplier alone",            value: marginOnSup1,   color: "#f87171" },
-                    { label: "Impact if top supplier raises prices 4%",           value: pricingLeverage, color: "#f59e0b" },
+                    { label: "Revenue at risk if top supplier disrupted 30 days", value: sup1Disruption,  sub: `${((sup1Disruption / revenueVal) * 100).toFixed(1)}% of annual revenue`,      color: "#f87171" },
+                    { label: "Margin at risk from top supplier alone",            value: marginOnSup1,    sub: `${sup1Pct}% supplier × ${margin}% margin = concentrated P&L exposure`,        color: "#f87171" },
+                    { label: "Impact if top supplier raises prices 4%",           value: pricingLeverage, sub: `${((pricingLeverage / (revenueVal * margin / 100)) * 100).toFixed(0)}% of gross margin wiped by one price move`, color: "#f59e0b" },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -16,11 +16,11 @@ function prng(seed: number) { return ((seed * 2654435761) >>> 0) / 4294967296; }
 type WindowStatus = "on-time" | "at-risk" | "missed";
 
 export default function JITDeliveryPage() {
-  const [windows,       setWindows]       = useState(24);   // delivery windows per week
+  const [windows,       setWindows]       = useState(40);   // delivery windows per week
   const [supplierSlip,  setSupplierSlip]  = useState(18);   // % of components arrive late
   const [windowTol,     setWindowTol]     = useState(2);    // tolerance hours
-  const [missedCost,    setMissedCost]    = useState(12);   // $K penalty per missed window
-  const [lineStopCost,  setLineStopCost]  = useState(4500); // $/hr customer line stoppage
+  const [missedCost,    setMissedCost]    = useState(25);   // $K penalty per missed window
+  const [lineStopCost,  setLineStopCost]  = useState(8000); // $/hr customer line stoppage
   const [avgStopHrs,    setAvgStopHrs]    = useState(3);    // hrs per missed window event
   const [calculated,    setCalculated]    = useState(false);
 
@@ -65,11 +65,11 @@ export default function JITDeliveryPage() {
   };
 
   const SLIDERS = [
-    { label: "Delivery windows per week",              val: windows,      set: setWindows,      min: 4,   max: 120,   step: 2,   disp: String(windows) },
+    { label: "Delivery windows per week",              val: windows,      set: setWindows,      min: 5,   max: 300,   step: 5,   disp: String(windows) },
     { label: "% components arriving outside window",   val: supplierSlip, set: setSupplierSlip, min: 2,   max: 60,    step: 1,   disp: `${supplierSlip}%` },
     { label: "Delivery window tolerance (hours)",      val: windowTol,    set: setWindowTol,    min: 0.5, max: 12,    step: 0.5, disp: `${windowTol}h` },
-    { label: "Missed window penalty ($K)",             val: missedCost,   set: setMissedCost,   min: 1,   max: 100,   step: 1,   disp: `$${missedCost}K` },
-    { label: "Customer line stoppage cost ($/hr)",     val: lineStopCost, set: setLineStopCost, min: 500, max: 25000, step: 500, disp: `$${lineStopCost.toLocaleString()}` },
+    { label: "Missed window penalty ($K)",             val: missedCost,   set: setMissedCost,   min: 5,   max: 200,   step: 5,   disp: `$${missedCost}K` },
+    { label: "Customer line stoppage cost ($/hr)",     val: lineStopCost, set: setLineStopCost, min: 500, max: 50000, step: 500, disp: `$${lineStopCost.toLocaleString()}` },
     { label: "Average stoppage duration (hrs)",        val: avgStopHrs,   set: setAvgStopHrs,   min: 0.5, max: 12,    step: 0.5, disp: `${avgStopHrs}h` },
   ];
 
@@ -197,17 +197,20 @@ export default function JITDeliveryPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { label: "Annual missed delivery windows",                value: annualMissed,  color: "#f87171",          isCount: true },
-                    { label: "Penalty cost (missed SLA charges)",             value: penaltyCost,   color: "#f87171",          isCount: false },
-                    { label: "Customer line stoppage cost",                   value: stopCost,      color: "#f87171",          isCount: false },
-                    { label: "Total annual exposure",                         value: totalCost,     color: "var(--off-white)", isCount: false },
-                    { label: "Value of advance window-risk alerting (Aztela)",value: annualSaving,  color: "#4ade80",          isCount: false },
+                    { label: "Annual missed delivery windows",                value: annualMissed,  sub: `${(missedPct * 100).toFixed(0)}% miss rate — ${weeklyMissed} of ${windows} windows/week`,           color: "#f87171",          isCount: true },
+                    { label: "Penalty cost (missed SLA charges)",             value: penaltyCost,   sub: `${annualMissed} events × $${missedCost}K per miss`,                                                   color: "#f87171",          isCount: false },
+                    { label: "Customer line stoppage cost",                   value: stopCost,      sub: `${annualMissed} events × ${avgStopHrs}h × $${lineStopCost.toLocaleString()}/hr`,                     color: "#f87171",          isCount: false },
+                    { label: "Total annual exposure",                         value: totalCost,     sub: null,                                                                                                  color: "var(--off-white)", isCount: false },
+                    { label: "Value of advance window-risk alerting (Aztela)",value: annualSaving,  sub: `${((annualSaving / totalCost) * 100).toFixed(0)}% of exposure eliminated with early alerting`,       color: "#4ade80",          isCount: false },
                   ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-center">
+                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
                       <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <p className="text-sm font-bold shrink-0" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>
-                        {row.isCount ? `${row.value} events` : fmt(row.value)}
-                      </p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>
+                          {row.isCount ? `${row.value} events` : fmt(row.value)}
+                        </p>
+                        {row.sub && <p className="text-[10px] text-[var(--muted)] mt-0.5 max-w-[180px]" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -20,8 +20,8 @@ function branchRisk(i: number, criticalPct: number, warningPct: number): "critic
 }
 
 export default function StockoutPredictorPage() {
-  const [revenue,     setRevenue]     = useState(40);
-  const [branches,    setBranches]    = useState(8);
+  const [revenue,     setRevenue]     = useState(85);
+  const [branches,    setBranches]    = useState(22);
   const [daysOnHand,  setDaysOnHand]  = useState(21);
   const [variability, setVariability] = useState(20);
   const [leadTime,    setLeadTime]    = useState(12);
@@ -52,8 +52,8 @@ export default function StockoutPredictorPage() {
   );
 
   const SLIDERS = [
-    { label: "Annual Revenue",             val: revenue,     set: setRevenue,     min: 5,  max: 250, step: 1,  disp: `$${revenue}M` },
-    { label: "Number of branches",         val: branches,    set: setBranches,    min: 1,  max: 80,  step: 1,  disp: String(branches) },
+    { label: "Annual Revenue",             val: revenue,     set: setRevenue,     min: 20, max: 500, step: 5,  disp: `$${revenue}M` },
+    { label: "Number of branches",         val: branches,    set: setBranches,    min: 3,  max: 150, step: 1,  disp: String(branches) },
     { label: "Avg inventory days on hand", val: daysOnHand,  set: setDaysOnHand,  min: 5,  max: 60,  step: 1,  disp: `${daysOnHand}d` },
     { label: "Weekly demand variability",  val: variability, set: setVariability, min: 5,  max: 50,  step: 1,  disp: `${variability}%` },
     { label: "Supplier reorder lead time", val: leadTime,    set: setLeadTime,    min: 2,  max: 45,  step: 1,  disp: `${leadTime}d` },
@@ -206,10 +206,12 @@ export default function StockoutPredictorPage() {
                     <div>
                       <p className="text-xs text-[var(--muted)] mb-1" style={{ fontFamily: "var(--font-inter)" }}>Revenue at risk this week</p>
                       <p className="text-2xl font-bold text-red-400" style={{ fontFamily: "var(--font-inter)" }}>{fmt(revenueAtRisk)}</p>
+                      <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{((revenueAtRisk / weeklyRevenue) * 100).toFixed(1)}% of weekly revenue</p>
                     </div>
                     <div>
                       <p className="text-xs text-[var(--muted)] mb-1" style={{ fontFamily: "var(--font-inter)" }}>Annual impact if pattern holds</p>
                       <p className="text-2xl font-bold text-[var(--coral)]" style={{ fontFamily: "var(--font-inter)" }}>{fmt(annualImpact)}</p>
+                      <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{((annualImpact / revenueVal) * 100).toFixed(1)}% of annual revenue</p>
                     </div>
                   </div>
                   <a href="https://cal.com/ali-z.s-yb9uld/data-strategy-assessment" target="_blank" rel="noopener noreferrer"
