@@ -17,7 +17,7 @@ export default function LogoTicker() {
   const doubled = [...logos, ...logos];
 
   return (
-    <div className="mt-12 mb-2">
+    <div className="mt-12 mb-0">
       <p
         className="text-[var(--muted)] text-xs tracking-[0.2em] uppercase mb-6 text-center"
         style={{ fontFamily: "var(--font-inter)" }}

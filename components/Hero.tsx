@@ -12,9 +12,9 @@ const stats = [
 ];
 
 const segments = [
-  { who: "Distributors" },
-  { who: "Wholesalers" },
-  { who: "Manufacturers" },
+  { who: "Distributors",  close: "the customer had already called." },
+  { who: "Wholesalers",   close: "the margin was already gone." },
+  { who: "Manufacturers", close: "the line had already stopped." },
 ];
 
 export default function Hero() {
@@ -73,13 +73,20 @@ export default function Hero() {
           style={{ letterSpacing: "-0.025em", fontFamily: "var(--font-playfair)" }}
         >
           <span className="hero-word block" style={{ animationDelay: "0.2s" }}>
-            See your supply chain the way
+            By the time you knew about it,
           </span>
-          <span className="hero-word block" style={{ animationDelay: "0.3s" }}>
-            your problems do —
+          <span
+            className="block"
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0)" : "translateY(8px)",
+              transition: "opacity 0.35s ease, transform 0.35s ease",
+            }}
+          >
+            {seg.close}
           </span>
-          <span className="hero-word block text-[var(--coral)]" style={{ animationDelay: "0.45s" }}>
-            before they surface.
+          <span className="hero-word block text-[var(--coral)] mt-3" style={{ animationDelay: "0.45s" }}>
+            We show you before it happens.
           </span>
         </h1>
 
@@ -87,7 +94,7 @@ export default function Hero() {
           className="hero-word text-[var(--muted)] text-lg md:text-xl font-light max-w-2xl leading-relaxed mb-12"
           style={{ animationDelay: "0.65s", fontFamily: "var(--font-inter)" }}
         >
-          Operational intelligence for distributors, wholesalers, and manufacturers who can't afford surprises.
+          Aztela builds a live operational picture of your supply chain — connecting supplier delays, inventory positions, and work orders — so problems surface before they cost you money.
         </p>
 
         <div className="hero-word flex flex-col sm:flex-row gap-4" style={{ animationDelay: "0.9s" }}>
@@ -109,7 +116,7 @@ export default function Hero() {
 
         <LogoTicker />
 
-        <div className="mt-20 pt-10 border-t border-[var(--border)] grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="mt-8 pt-8 border-t border-[var(--border)] grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map(({ stat, label }, i) => (
             <Counter key={label} value={stat} label={label} delay={i * 120} />
           ))}
