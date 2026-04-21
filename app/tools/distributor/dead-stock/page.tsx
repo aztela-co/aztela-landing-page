@@ -10,45 +10,76 @@ function fmt(n: number) {
   if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
   return `$${Math.round(n)}`;
 }
+function fmtM(n: number) { return `$${(n / 1_000_000).toFixed(2)}M`; }
 
 export default function DeadStockPage() {
-  const [invValue,   setInvValue]   = useState(22);
-  const [pct30,      setPct30]      = useState(18);
-  const [pct60,      setPct60]      = useState(10);
-  const [pct90,      setPct90]      = useState(6);
-  const [carryRate,  setCarryRate]  = useState(22);
-  const [calculated, setCalculated] = useState(false);
+  const [invValue,    setInvValue]    = useState(28);    // $M total inventory
+  const [pct90,       setPct90]       = useState(14);    // % not moved 90 days
+  const [pct180,      setPct180]      = useState(8);     // % not moved 180 days
+  const [pct24mo,     setPct24mo]     = useState(4);     // % not moved 24+ months
+  const [branches,    setBranches]    = useState(12);    // number of branches
+  const [holdingRate, setHoldingRate] = useState(1.2);   // monthly holding cost %
+  const [dutyFreight, setDutyFreight] = useState(18);    // import duty + freight as % of landed cost
+  const [calculated,  setCalculated]  = useState(false);
 
-  const totalInv   = invValue * 1_000_000;
-  const slow30     = totalInv * (pct30 / 100);
-  const slow60     = totalInv * (pct60 / 100);
-  const dead90     = totalInv * (pct90 / 100);
-  const healthyInv = totalInv - slow30 - slow60 - dead90;
+  const totalInv     = invValue * 1_000_000;
 
-  const carryingCost     = (slow60 * 0.5 + dead90) * (carryRate / 100);
-  const recoveryAt40c    = dead90 * 0.4;
-  const redeployableCapital = dead90 + slow60 * 0.5;
-  const opportunityCost  = redeployableCapital * 0.06; // 6% could be earning if deployed
+  // Aging buckets
+  const aging90      = totalInv * (pct90  / 100);
+  const aging180     = totalInv * (pct180 / 100);
+  const aging24mo    = totalInv * (pct24mo / 100);
+  const activeInv    = Math.max(0, totalInv - aging90 - aging180 - aging24mo);
 
-  const SLIDERS = [
-    { label: "Total inventory value",          val: invValue,  set: setInvValue,  min: 1,   max: 200, step: 1,   display: `$${invValue}M` },
-    { label: "Inventory 30–60 days no movement", val: pct30,  set: setPct30,     min: 0,   max: 40,  step: 1,   display: `${pct30}%` },
-    { label: "Inventory 60–90 days no movement", val: pct60,  set: setPct60,     min: 0,   max: 30,  step: 1,   display: `${pct60}%` },
-    { label: "Inventory 90+ days no movement",   val: pct90,  set: setPct90,     min: 0,   max: 20,  step: 1,   display: `${pct90}%` },
-    { label: "Annual inventory carrying cost",   val: carryRate, set: setCarryRate, min: 10, max: 35, step: 1,  display: `${carryRate}%` },
+  // ── Output 1: Current Capital Drag (monthly) ──────────────────────────────
+  // Monthly holding on all aging tiers (90d = 0.5 weight, 180d = 0.8, 24mo = 1.0)
+  const monthlyHold  = (aging90 * 0.5 + aging180 * 0.8 + aging24mo) * (holdingRate / 100);
+  // Depreciation: aging stock loses value — 0.5%/mo for 180d, 1%/mo for 24mo
+  const monthlyDepr  = aging180 * 0.005 + aging24mo * 0.01;
+  // Opportunity cost: capital not earning — apply 6% annual / 12
+  const monthlyOpp   = (aging180 * 0.5 + aging24mo) * (0.06 / 12);
+  // Duty/freight already sunk in dead stock (annualised portion, /12)
+  const sunkDuty     = aging24mo * (dutyFreight / 100) * (0.08);
+  const capitalDrag  = monthlyHold + monthlyDepr + monthlyOpp + sunkDuty;
+
+  // ── Output 2: Cross-Branch Recovery Estimate ─────────────────────────────
+  // Multi-branch networks: benchmark 35–55% of 90–180d aging is transfer-eligible
+  // Increases with branch count (more chances for a branch to need it)
+  const transferFactor = Math.min(0.55, 0.30 + (branches / 100) * 0.25);
+  const transferLow    = Math.round((aging90 + aging180) * 0.35 / 1_000) * 1_000;
+  const transferHigh   = Math.round((aging90 + aging180) * transferFactor / 1_000) * 1_000;
+  // 24mo stock: not transfer-eligible — needs liquidation or write-off
+  const liquidationVal = aging24mo * 0.35; // 35¢ on the dollar
+
+  // ── Output 3: 90-Day Inaction Cost ───────────────────────────────────────
+  // Aging velocity: each month ~8% of 90d stock graduates to 180d, ~5% of 180d to 24mo
+  const newDead90days  = aging90 * 0.08 * 3;   // 90d → 180d in next 90 days
+  const newDead180days = aging180 * 0.05 * 3;  // 180d → 24mo in next 90 days
+  const inactionCost   = (newDead90days + newDead180days) * (holdingRate / 100) * 3
+                        + newDead180days * 0.15; // write-down risk on newly dead
+
+  // Inventory health bars
+  const bars = [
+    { label: "Active inventory",              value: activeInv,  pct: (activeInv / totalInv) * 100,  color: "#4ade80" },
+    { label: "Slow-moving (90 days+)",        value: aging90,    pct: pct90,                          color: "#f59e0b" },
+    { label: "At-risk (180 days+)",           value: aging180,   pct: pct180,                         color: "#fb923c" },
+    { label: "Dead stock (24 months+)",       value: aging24mo,  pct: pct24mo,                        color: "#f87171" },
   ];
 
-  const bars = [
-    { label: "Active inventory",          value: healthyInv, color: "#4ade80" },
-    { label: "Slow-moving (30–60 days)",  value: slow30,     color: "#f59e0b" },
-    { label: "At-risk (60–90 days)",      value: slow60,     color: "#fb923c" },
-    { label: "Dead stock (90+ days)",     value: dead90,     color: "#f87171" },
+  const SLIDERS = [
+    { label: "Total inventory value ($M)",            val: invValue,    set: setInvValue,    min: 2,   max: 300,  step: 1,   disp: `$${invValue}M` },
+    { label: "% inventory not moved in 90 days",      val: pct90,       set: setPct90,       min: 0,   max: 50,   step: 1,   disp: `${pct90}%` },
+    { label: "% inventory not moved in 180 days",     val: pct180,      set: setPct180,      min: 0,   max: 30,   step: 1,   disp: `${pct180}%` },
+    { label: "% inventory not moved in 24+ months",   val: pct24mo,     set: setPct24mo,     min: 0,   max: 15,   step: 0.5, disp: `${pct24mo}%` },
+    { label: "Number of branches / locations",        val: branches,    set: setBranches,    min: 2,   max: 150,  step: 1,   disp: String(branches) },
+    { label: "Monthly holding cost %",                val: holdingRate, set: setHoldingRate, min: 0.5, max: 3,    step: 0.1, disp: `${holdingRate}%/mo` },
+    { label: "Import duty + freight (% of landed)",   val: dutyFreight, set: setDutyFreight, min: 0,   max: 40,   step: 1,   disp: `${dutyFreight}%` },
   ];
 
   return (
     <>
       <Navbar />
       <main className="pt-16">
+
         <section className="px-6 py-16 md:py-24 grid-bg">
           <div className="max-w-4xl mx-auto text-center">
             <Link href="/tools" className="inline-flex items-center gap-1 text-[var(--muted)] text-xs mb-8 hover:text-[var(--off-white)] transition-colors" style={{ fontFamily: "var(--font-inter)" }}>
@@ -56,25 +87,27 @@ export default function DeadStockPage() {
             </Link>
             <p className="text-[var(--coral)] text-xs font-medium tracking-[0.2em] uppercase mb-4" style={{ fontFamily: "var(--font-inter)" }}>Distributor Tool</p>
             <h1 className="text-3xl md:text-5xl font-semibold text-[var(--off-white)] mb-5 leading-tight" style={{ fontFamily: "var(--font-playfair)", letterSpacing: "-0.02em" }}>
-              How much capital is sitting idle in your inventory?
+              Dead Stock Exposure Calculator
             </h1>
             <p className="text-[var(--muted)] text-lg font-light max-w-xl mx-auto" style={{ fontFamily: "var(--font-inter)" }}>
-              Dead and slow-moving stock isn't just a write-off risk — it's working capital you can't deploy. Calculate yours.
+              Three numbers most multi-branch distributors have never seen calculated simultaneously — monthly capital drag, cross-branch recovery potential, and the cost of doing nothing for 90 days.
             </p>
           </div>
         </section>
 
         <section className="px-6 py-12 md:py-20">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-10 items-start">
 
+              {/* Inputs */}
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-[var(--off-white)]" style={{ fontFamily: "var(--font-playfair)" }}>Your inventory profile</h2>
-                {SLIDERS.map(({ label, val, set, min, max, step, display }) => (
+
+                {SLIDERS.map(({ label, val, set, min, max, step, disp }) => (
                   <div key={label}>
                     <div className="flex justify-between mb-2">
                       <label className="text-sm text-[var(--off-white)]" style={{ fontFamily: "var(--font-inter)" }}>{label}</label>
-                      <span className="text-sm font-semibold text-[var(--coral)]" style={{ fontFamily: "var(--font-inter)" }}>{display}</span>
+                      <span className="text-sm font-semibold text-[var(--coral)]" style={{ fontFamily: "var(--font-inter)" }}>{disp}</span>
                     </div>
                     <input type="range" min={min} max={max} step={step} value={val}
                       onChange={e => { set(+e.target.value); setCalculated(false); }}
@@ -85,74 +118,121 @@ export default function DeadStockPage() {
                     </div>
                   </div>
                 ))}
+
                 <button onClick={() => setCalculated(true)}
                   className="w-full py-4 bg-[var(--coral)] text-white font-medium text-sm hover:opacity-90 transition-all hover:translate-y-[-1px] rounded-sm"
                   style={{ fontFamily: "var(--font-inter)" }}>
-                  Calculate Dead Stock Exposure →
+                  Calculate My Dead Stock Exposure →
                 </button>
-              </div>
 
-              <div className={`transition-all duration-500 ${calculated ? "opacity-100 translate-y-0" : "opacity-30 translate-y-4 pointer-events-none"}`}>
-                <h2 className="text-xl font-semibold text-[var(--off-white)] mb-6" style={{ fontFamily: "var(--font-playfair)" }}>Inventory health breakdown</h2>
-
-                {/* Visual bars */}
-                <div className="border border-[var(--border)] rounded-sm p-5 mb-4 space-y-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                {/* Live inventory health bars — always visible */}
+                <div className="border border-[var(--border)] rounded-sm p-5" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-widest mb-4" style={{ fontFamily: "var(--font-inter)" }}>
+                    Inventory health breakdown
+                  </p>
                   {bars.map(bar => (
-                    <div key={bar.label}>
+                    <div key={bar.label} className="mb-3">
                       <div className="flex justify-between mb-1">
                         <span className="text-xs text-[var(--muted)]" style={{ fontFamily: "var(--font-inter)" }}>{bar.label}</span>
-                        <span className="text-xs font-semibold" style={{ color: bar.color, fontFamily: "var(--font-inter)" }}>{fmt(bar.value)}</span>
+                        <div className="text-right">
+                          <span className="text-xs font-bold" style={{ color: bar.color, fontFamily: "var(--font-inter)" }}>{fmt(bar.value)}</span>
+                          <span className="text-[10px] text-[var(--muted)] ml-2" style={{ fontFamily: "var(--font-inter)" }}>{bar.pct.toFixed(1)}%</span>
+                        </div>
                       </div>
-                      <div className="w-full h-2 rounded-full bg-[var(--border)]">
-                        <div className="h-full rounded-full transition-all duration-700"
-                          style={{ width: calculated ? `${(bar.value / totalInv) * 100}%` : "0%", background: bar.color }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Idle capital headline */}
-                <div className="border border-[var(--border)] rounded-sm p-5 mb-4 flex items-center justify-between" style={{ background: "rgba(255,255,255,0.02)" }}>
-                  <div>
-                    <p className="text-xs text-[var(--muted)] uppercase tracking-widest mb-1" style={{ fontFamily: "var(--font-inter)" }}>Idle capital (60d+ no movement)</p>
-                    <p className="text-3xl font-bold text-red-400" style={{ fontFamily: "var(--font-inter)" }}>{fmt(slow60 + dead90)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-[var(--muted)] mb-1" style={{ fontFamily: "var(--font-inter)" }}>of total inventory</p>
-                    <p className="text-3xl font-bold" style={{ color: (pct60 + pct90) > 20 ? "#f87171" : "#f59e0b", fontFamily: "var(--font-inter)" }}>{pct60 + pct90}%</p>
-                  </div>
-                </div>
-
-                {/* Key numbers */}
-                <div className="space-y-3 mb-5">
-                  {[
-                    { label: "Annual carrying cost of dead & at-risk stock", value: carryingCost,       sub: `${((carryingCost / totalInv) * 100).toFixed(1)}% of total inventory value/yr`, color: "#f87171" },
-                    { label: "Recoverable if liquidated at 40¢ on the dollar", value: recoveryAt40c,   sub: `${((recoveryAt40c / totalInv) * 100).toFixed(1)}% of inventory recovered`,        color: "#f59e0b" },
-                    { label: "Capital you could redeploy to active demand",   value: redeployableCapital, sub: `${((redeployableCapital / totalInv) * 100).toFixed(1)}% of inventory unlocked`, color: "#4ade80" },
-                    { label: "Opportunity cost (6% if redeployed)",           value: opportunityCost,  sub: "foregone return on idle capital",                                                  color: "#4d80ff" },
-                  ].map(row => (
-                    <div key={row.label} className="border border-[var(--border)] rounded-sm p-4 flex justify-between items-start">
-                      <p className="text-sm text-[var(--muted)] pr-4" style={{ fontFamily: "var(--font-inter)" }}>{row.label}</p>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm font-bold" style={{ color: row.color, fontFamily: "var(--font-inter)" }}>{fmt(row.value)}</p>
-                        <p className="text-[10px] text-[var(--muted)] mt-0.5" style={{ fontFamily: "var(--font-inter)" }}>{row.sub}</p>
+                      <div className="w-full h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${bar.pct}%`, background: bar.color }} />
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
 
-                <div className="border border-[var(--border)] rounded-sm p-6" style={{ background: "rgba(77,128,255,0.04)", borderColor: "rgba(77,128,255,0.25)" }}>
-                  <p className="text-sm text-[var(--off-white)] mb-4 leading-relaxed" style={{ fontFamily: "var(--font-inter)" }}>
-                    Aztela flags slow-moving stock in real time — before it becomes dead stock. Most clients recover 20–35% of idle capital within 6 months.
+              {/* Results */}
+              <div className={`transition-all duration-500 ${calculated ? "opacity-100 translate-y-0" : "opacity-30 translate-y-4 pointer-events-none"}`}>
+                <h2 className="text-xl font-semibold text-[var(--off-white)] mb-6" style={{ fontFamily: "var(--font-playfair)" }}>Your three numbers</h2>
+
+                {/* Number 1 — Capital Drag */}
+                <div className="border border-[var(--border)] rounded-sm p-6 mb-4"
+                  style={{ background: "rgba(248,113,113,0.04)", borderColor: "rgba(248,113,113,0.25)" }}>
+                  <p className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "#f87171", fontFamily: "var(--font-inter)" }}>
+                    Number 1 — Current Capital Drag
+                  </p>
+                  <p className="text-4xl font-bold text-[var(--off-white)] mb-2" style={{ fontFamily: "var(--font-inter)" }}>
+                    {fmt(capitalDrag)}<span className="text-lg text-[var(--muted)] font-normal"> / month</span>
+                  </p>
+                  <p className="text-xs text-[var(--muted)] leading-relaxed" style={{ fontFamily: "var(--font-inter)" }}>
+                    Your dead and aging stock is costing you {fmt(capitalDrag)} per month in holding costs, depreciation, and opportunity cost — capital that could be redeployed into fast-moving inventory. Annualised: <span style={{ color: "#f87171" }}>{fmt(capitalDrag * 12)}/yr</span>.
+                  </p>
+                  <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[var(--border)]">
+                    {[
+                      { label: "Holding cost",   value: monthlyHold },
+                      { label: "Depreciation",   value: monthlyDepr },
+                      { label: "Opportunity",    value: monthlyOpp  },
+                    ].map(item => (
+                      <div key={item.label}>
+                        <p className="text-[10px] text-[var(--muted)] mb-0.5" style={{ fontFamily: "var(--font-inter)" }}>{item.label}</p>
+                        <p className="text-sm font-bold text-[#f87171]" style={{ fontFamily: "var(--font-inter)" }}>{fmt(item.value)}/mo</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Number 2 — Cross-Branch Recovery */}
+                <div className="border border-[var(--border)] rounded-sm p-6 mb-4"
+                  style={{ background: "rgba(245,158,11,0.04)", borderColor: "rgba(245,158,11,0.25)" }}>
+                  <p className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "#f59e0b", fontFamily: "var(--font-inter)" }}>
+                    Number 2 — Cross-Branch Recovery Estimate
+                  </p>
+                  <p className="text-4xl font-bold text-[var(--off-white)] mb-2" style={{ fontFamily: "var(--font-inter)" }}>
+                    {fmt(transferLow)} – {fmt(transferHigh)}
+                  </p>
+                  <p className="text-xs text-[var(--muted)] leading-relaxed mb-4" style={{ fontFamily: "var(--font-inter)" }}>
+                    Based on distributor benchmarks for {branches}-branch networks, an estimated {fmt(transferLow)}–{fmt(transferHigh)} of your aging inventory is likely <span style={{ color: "#f59e0b" }}>transfer-eligible</span> — stock sitting idle in one branch that another branch could sell today. Not dead. Just misplaced.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[var(--border)]">
+                    <div>
+                      <p className="text-[10px] text-[var(--muted)] mb-0.5" style={{ fontFamily: "var(--font-inter)" }}>Transfer-eligible (90–180d)</p>
+                      <p className="text-sm font-bold text-[#f59e0b]" style={{ fontFamily: "var(--font-inter)" }}>{fmt(transferLow)}–{fmt(transferHigh)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-[var(--muted)] mb-0.5" style={{ fontFamily: "var(--font-inter)" }}>Liquidation value (24mo+)</p>
+                      <p className="text-sm font-bold text-[#f87171]" style={{ fontFamily: "var(--font-inter)" }}>{fmt(liquidationVal)} at 35¢</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Number 3 — 90-Day Inaction Cost */}
+                <div className="border border-[var(--border)] rounded-sm p-6 mb-5"
+                  style={{ background: "rgba(77,128,255,0.04)", borderColor: "rgba(77,128,255,0.25)" }}>
+                  <p className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "#4d80ff", fontFamily: "var(--font-inter)" }}>
+                    Number 3 — The 90-Day Inaction Cost
+                  </p>
+                  <p className="text-4xl font-bold text-[var(--off-white)] mb-2" style={{ fontFamily: "var(--font-inter)" }}>
+                    {fmt(inactionCost)}
+                  </p>
+                  <p className="text-xs text-[var(--muted)] leading-relaxed" style={{ fontFamily: "var(--font-inter)" }}>
+                    If current patterns continue unchanged for 90 days, an additional <span style={{ color: "#4d80ff" }}>{fmt(newDead90days + newDead180days)}</span> moves from at-risk into fully dead stock based on your aging velocity — adding {fmt(inactionCost)} in unrecoverable cost on top of your current drag.
+                  </p>
+                </div>
+
+                {/* CTA */}
+                <div className="border border-[var(--border)] rounded-sm p-6"
+                  style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.08)" }}>
+                  <p className="text-sm font-semibold text-[var(--off-white)] mb-1" style={{ fontFamily: "var(--font-inter)" }}>
+                    Get your exact numbers — not estimates — from your live data in 72 hours.
+                  </p>
+                  <p className="text-xs text-[var(--muted)] mb-4 leading-relaxed" style={{ fontFamily: "var(--font-inter)" }}>
+                    These are benchmark-based estimates. Aztela connects to your ERP and WMS and produces the same three numbers from your actual inventory data — per SKU, per branch, per aging bucket. No commitment. No cost to see it.
                   </p>
                   <a href="https://cal.com/ali-z.s-yb9uld/data-strategy-assessment" target="_blank" rel="noopener noreferrer"
                     className="w-full flex items-center justify-center py-3.5 bg-[var(--coral)] text-white font-medium text-sm hover:opacity-90 transition-all rounded-sm"
                     style={{ fontFamily: "var(--font-inter)" }}>
-                    Get a Free Dead Stock Audit →
+                    Get My Exact Numbers From Live Data →
                   </a>
                 </div>
-              </div>
 
+              </div>
             </div>
           </div>
         </section>
