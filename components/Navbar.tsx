@@ -19,6 +19,7 @@ const industriesNav = [
 
 const toolsNav = [
   { label: "ROI Calculator",          sub: "All segments",   href: "/tools/roi" },
+  { label: "Inventory Scorecard",      sub: "Distributors",   href: "/tools/distributor/inventory-scorecard" },
   { label: "Stockout Predictor",      sub: "Distributors",   href: "/tools/distributor/stockout-predictor" },
   { label: "Dead Stock Calculator",   sub: "Distributors",   href: "/tools/distributor/dead-stock" },
   { label: "Stale Quote Calculator",  sub: "Wholesalers",    href: "/tools/wholesaler/stale-quote" },

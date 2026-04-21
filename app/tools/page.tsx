@@ -8,6 +8,12 @@ const SEGMENTS = [
     color: "#4d80ff",
     tools: [
       {
+        label: "Inventory Intelligence Scorecard",
+        desc: "5 questions, 3 minutes. Score your operation across 5 dimensions and get a personalised diagnosis of where inventory gaps are costing you most.",
+        href: "/tools/distributor/inventory-scorecard",
+        tag: "Self-assessment",
+      },
+      {
         label: "Branch Stockout Predictor",
         desc: "Which branches will stockout in the next 14 days — and how much revenue is sitting in the gap.",
         href: "/tools/distributor/stockout-predictor",
